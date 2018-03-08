@@ -1,0 +1,60 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.gs.buglydemo"
+        minSdkVersion 19
+        targetSdkVersion 26
+        multiDexEnabled true
+        versionCode 1
+        versionName "1.1.1"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file("./keystore/password.properties").newDataInputStream())
+    // 签名配置
+    signingConfigs {
+        release {
+            try {
+                storeFile project.rootProject.file("./keystore/release.keystore")
+                storePassword properties.getProperty("storePassword")
+                keyAlias properties.getProperty("keyAlias")
+                keyPassword properties.getProperty("keyPassword")
+            } catch (ex) {
+                throw new InvalidUserDataException(ex.toString())
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation 'com.android.support:multidex:1.0.3'
+
+    implementation 'com.tencent.bugly:crashreport_upgrade:1.3.4'
+}
+// 依赖插件脚本
+apply from: 'tinker-support.gradle'
